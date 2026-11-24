@@ -6,7 +6,7 @@
 <title>Un ramo para ti</title>
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);background:#1c0a24}
-html,body{height:100%;margin:0;color-scheme:dark;background:#1c0a24}
+html,body{height:100%;margin:0;color-scheme:dark;background:#1c0a24;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
 body{background:radial-gradient(ellipse at 50% 40%,#4a1d4f 0%,#2a0f33 55%,#14061c 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
 pre{filter:drop-shadow(0 0 9px rgba(255,160,215,.45));margin:0;font-family:"Courier New",Courier,monospace;line-height:1;white-space:pre;font-weight:bold}
 #s{height:min(6.5vh,52px);max-width:30vw;object-fit:contain;margin-top:8px}
@@ -53,9 +53,13 @@ for(const sg of[-1,1]){
 const o=document.getElementById("o"),im=document.getElementById("s"),tx=document.getElementById("t");
 function fit(){o.style.fontSize=Math.min(innerWidth*.98/(W*.6),(innerHeight-im.offsetHeight-tx.offsetHeight-40)/H)+"px"}
 addEventListener("resize",fit);im.onload=fit;fit();
-const ct=Math.cos(.2),st=Math.sin(.2);
+let ang=0,tl=.2,drag=false,lx0=0,ly0=0,last=0;
+addEventListener("pointerdown",e=>{drag=true;lx0=e.clientX;ly0=e.clientY});
+addEventListener("pointermove",e=>{if(!drag)return;ang+=(e.clientX-lx0)*.012;tl=Math.max(-.5,Math.min(.9,tl+(e.clientY-ly0)*.006));lx0=e.clientX;ly0=e.clientY});
+addEventListener("pointerup",()=>{drag=false});addEventListener("pointercancel",()=>{drag=false});
 function frame(ts){
- const A=ts/3800,ca=Math.cos(A),sa=Math.sin(A);
+ const dt=last?ts-last:0;last=ts;if(!drag)ang+=dt/3800;
+ const ct=Math.cos(tl),st=Math.sin(tl),A=ang,ca=Math.cos(A),sa=Math.sin(A);
  const ch=new Array(W*H).fill(" "),cl=new Array(W*H).fill(-1),zb=new Array(W*H).fill(-9);
  for(const p of P){
   const x=p[0]*ca+p[2]*sa,z=-p[0]*sa+p[2]*ca,y=p[1],y2=y*ct-z*st,z2=y*st+z*ct;
